@@ -38,67 +38,69 @@ public interface InputOutput {
 	 * @return Integer number
 	 */
 	default Integer readInt(String prompt, String errorPrompt) {
-		// TODO
 		// Entered string must be a number otherwise, errorPrompt with cycle
-		return readObject(prompt, errorPrompt, str -> Integer.parseInt(str));
+		return readObject(prompt, errorPrompt, Integer::parseInt);
 
 	}
 
 	default Long readLong(String prompt, String errorPrompt) {
-		// TODO
 		// Entered string must be a number otherwise, errorPrompt with cycle
-		return readObject(prompt, errorPrompt, str -> Long.parseLong(str));
+		return readObject(prompt, errorPrompt, Long::parseLong);
 
 	}
 
 	default Double readDouble(String prompt, String errorPrompt) {
-		// TODO
 		// Entered string must be a number otherwise, errorPrompt with cycle
-		return readObject(prompt, errorPrompt, str -> Double.parseDouble(str));
+		return readObject(prompt, errorPrompt, Double::parseDouble);
 
 	}
 
 	default Double readNumberRange(String prompt, String errorPrompt, double min, double max) {
-		// TODO
 		// Entered string must be a number in range (min <= number < max) otherwise,
 		// errorPrompt with cycle
-		return readObject(prompt, errorPrompt, str -> {
-			double numberRange = Double.parseDouble(str);
-			if(numberRange < min || numberRange > max) throw new IllegalArgumentException("the number is out of range");
-			return numberRange;
+		return readObject(prompt, errorPrompt,
+				string -> {
+
+			double res = Double.parseDouble(string);
+			if (res < min) {
+				throw new IllegalArgumentException("must be not less than " + min);
+			}
+			if (res > max) {
+				throw new IllegalArgumentException("must be not greater than " + max);
+			}
+			return res;
+
 		});
 	}
-	
 	default String readStringPredicate(String prompt, String errorPrompt,
 			Predicate<String> predicate) {
-		//TODO
 		//Entered String must match a given predicate
-		return readObject(prompt, errorPrompt, str -> {
-			if(!predicate.test(str)) throw new IllegalArgumentException("the string does not match the format");
-			return str;
+		return readObject(prompt, errorPrompt, string -> {
+			if(!predicate.test(string)) {
+				throw new IllegalArgumentException("");
+			}
+			return string;
 		});
 	}
-	
 	default String readStringOptions(String prompt, String errorPrompt,
 			HashSet<String> options) {
-		//TODO
 		//Entered String must be one out of a given options
-		return readStringPredicate(prompt, errorPrompt, str -> options.contains(str));
+		return readStringPredicate(prompt, errorPrompt, options::contains);
 	}
-	
 	default LocalDate readIsoDate(String prompt, String errorPrompt) {
-		//TODO
 		//Entered String must be a LocalDate in format (yyyy-mm-dd)
-		return readObject(prompt, errorPrompt, str -> LocalDate.parse(str));
+		return readObject(prompt, errorPrompt, LocalDate::parse);
 	}
-	
 	default LocalDate readIsoDateRange(String prompt, String errorPrompt, LocalDate from,
 			LocalDate to) {
 		//Entered String must be a LocalDate in format (yyyy-mm-dd) in the (from, to)(after from and before to)
-		return readObject(prompt, errorPrompt, str -> {
-			LocalDate dateRange = LocalDate.parse(str);
-			if(dateRange.isBefore(from) || dateRange.isAfter(to)) throw new IllegalArgumentException("the date is out of range");
-			return dateRange;
+		return readObject(prompt, errorPrompt, string -> {
+			LocalDate res = LocalDate.parse(string);
+			if(!(res.isAfter(from)&& res.isBefore(to))) {
+				throw new IllegalArgumentException
+				(String.format("Date must be after %s before %s", from, to));
+			}
+			return res;
 		});
 	}
 	
